@@ -12,7 +12,7 @@ namespace CleanArchitecture.WebAPI.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/auth")]
+[Route("api/v1/auth")]
 [Produces("application/json")]
 public class AuthController : ControllerBase
 {

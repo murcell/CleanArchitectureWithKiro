@@ -10,7 +10,7 @@ namespace CleanArchitecture.WebAPI.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/v1/[controller]")]
 public abstract class BaseController : ControllerBase
 {
     protected readonly IMediator Mediator;

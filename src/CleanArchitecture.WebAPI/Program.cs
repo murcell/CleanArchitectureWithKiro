@@ -1,13 +1,22 @@
-using Asp.Versioning;
 using CleanArchitecture.Application;
 using CleanArchitecture.Infrastructure;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Clean Architecture API", 
+        Version = "v1",
+        Description = "A comprehensive Clean Architecture implementation with .NET 9"
+    });
+});
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -26,22 +35,7 @@ builder.Services.AddApplication(builder.Configuration);
 // Add Infrastructure layer services (includes EF Core, Redis, RabbitMQ)
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Add API versioning
-builder.Services.AddApiVersioning(opt =>
-{
-    opt.DefaultApiVersion = new ApiVersion(1, 0);
-    opt.AssumeDefaultVersionWhenUnspecified = true;
-    opt.ApiVersionReader = ApiVersionReader.Combine(
-        new UrlSegmentApiVersionReader(),
-        new QueryStringApiVersionReader("version"),
-        new HeaderApiVersionReader("X-Version"),
-        new MediaTypeApiVersionReader("ver")
-    );
-}).AddApiExplorer(setup =>
-{
-    setup.GroupNameFormat = "'v'VVV";
-    setup.SubstituteApiVersionInUrl = true;
-});
+// Simple configuration without API versioning for now
 
 var app = builder.Build();
 
@@ -51,12 +45,15 @@ app.UseCors();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Clean Architecture API V1");
-        c.RoutePrefix = "swagger";
-        // Support both HTTP and HTTPS
-        c.SupportedSubmitMethods();
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Clean Architecture API v1");
+        options.RoutePrefix = string.Empty; // Swagger UI at root
+        options.DefaultModelsExpandDepth(-1);
+        options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+        options.EnableDeepLinking();
+        options.DisplayOperationId();
+        options.DisplayRequestDuration();
     });
 }
 

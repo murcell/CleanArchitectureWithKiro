@@ -13,7 +13,7 @@ namespace CleanArchitecture.WebAPI.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/api-keys")]
+[Route("api/v1/api-keys")]
 [Produces("application/json")]
 [Authorize]
 public class ApiKeysController : ControllerBase

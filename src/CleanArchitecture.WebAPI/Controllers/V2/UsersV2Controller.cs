@@ -13,7 +13,7 @@ namespace CleanArchitecture.WebAPI.Controllers.V2;
 /// Version 2 of the Users controller with enhanced features
 /// </summary>
 [ApiVersion("2.0")]
-[Route("api/v{version:apiVersion}/users")]
+[Route("api/v2/users")]
 public class UsersV2Controller : BaseController
 {
     public UsersV2Controller(IMediator mediator, ILogger<UsersV2Controller> logger) 
