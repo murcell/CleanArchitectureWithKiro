@@ -5,16 +5,16 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
 
-Modern, ölçeklenebilir ve sürdürülebilir bir .NET 9 web API projesi. Clean Architecture prensiplerini takip eder ve enterprise-grade özellikler sunar.
+A modern, scalable, and maintainable .NET 9 Web API project following Clean Architecture principles with enterprise-grade features.
 
-## ✨ Özellikler
+## ✨ Features
 
-- 🏗️ **Clean Architecture** - Katmanlı mimari ve bağımlılık tersine çevirme
-- 🔐 **Güvenlik** - JWT Authentication, API Key, XSS koruması, SQL Injection koruması
+- 🏗️ **Clean Architecture** - Layered architecture with dependency inversion
+- 🔐 **Security** - JWT Authentication, API Key, XSS protection, SQL Injection protection
 - 📊 **Monitoring** - Structured logging (Serilog), Health checks, Performance monitoring
 - 🚀 **Performance** - Redis caching, Connection pooling, Async/await patterns
-- 🔄 **Messaging** - RabbitMQ ile asenkron mesajlaşma
-- 🧪 **Testing** - Unit, Integration, End-to-End ve Performance testleri
+- 🔄 **Messaging** - Asynchronous messaging with RabbitMQ
+- 🧪 **Testing** - Unit, Integration, End-to-End and Performance tests
 - 🐳 **DevOps** - Docker containerization, CI/CD pipeline, Multi-environment deployment
 - 📝 **Documentation** - Swagger/OpenAPI, Code documentation
 
@@ -73,7 +73,7 @@ Modern, ölçeklenebilir ve sürdürülebilir bir .NET 9 web API projesi. Clean 
 - **Swagger/OpenAPI** - API documentation
 - **API Versioning** - Version management
 
-## 📁 Proje Yapısı
+## 📁 Project Structure
 
 ```
 CleanArchitecture.Solution/
@@ -133,56 +133,56 @@ CleanArchitecture.Solution/
     └── ci-cd.yml                             # GitHub Actions workflow
 ```
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Quick Start
 
-### Gereksinimler
+### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [Git](https://git-scm.com/)
 
-### Kurulum
+### Installation
 
-1. **Repository'yi klonlayın**
+1. **Clone the repository**
    ```bash
    git clone https://github.com/username/clean-architecture-dotnet.git
    cd clean-architecture-dotnet
    ```
 
-2. **Docker servislerini başlatın**
+2. **Start Docker services**
    ```bash
    cd docker
    docker-compose up -d
    ```
 
-3. **Bağımlılıkları yükleyin**
+3. **Restore dependencies**
    ```bash
    dotnet restore
    ```
 
-4. **Projeyi derleyin**
+4. **Build the project**
    ```bash
    dotnet build
    ```
 
-5. **Veritabanını oluşturun**
+5. **Create the database**
    ```bash
    dotnet ef database update --project src/CleanArchitecture.Infrastructure --startup-project src/CleanArchitecture.WebAPI
    ```
 
-6. **Testleri çalıştırın**
+6. **Run tests**
    ```bash
    dotnet test
    ```
 
-7. **API'yi başlatın**
+7. **Start the API**
    ```bash
    dotnet run --project src/CleanArchitecture.WebAPI
    ```
 
-8. **API'yi test edin**
-   - Swagger UI: https://localhost:7001/swagger
-   - Health Check: https://localhost:7001/health
+8. **Test the API**
+   - Swagger UI: https://localhost:7196/swagger
+   - Health Check: https://localhost:7196/health
 
 ## 🐳 Docker Servisleri
 
@@ -195,48 +195,48 @@ CleanArchitecture.Solution/
 
 ## 🧪 Testing
 
-### Test Türleri
+### Test Types
 
-- **Unit Tests** - İzole birim testleri
-- **Integration Tests** - API endpoint testleri
-- **End-to-End Tests** - Tam workflow testleri
-- **Performance Tests** - Yük ve performans testleri
+- **Unit Tests** - Isolated unit tests
+- **Integration Tests** - API endpoint tests
+- **End-to-End Tests** - Complete workflow tests
+- **Performance Tests** - Load and performance tests
 
-### Test Komutları
+### Test Commands
 
 ```bash
-# Tüm testleri çalıştır
+# Run all tests
 dotnet test
 
-# Sadece unit testleri
+# Run only unit tests
 dotnet test --filter Category=Unit
 
-# Sadece integration testleri
+# Run only integration tests
 dotnet test --filter Category=Integration
 
-# Code coverage ile
+# Run with code coverage
 dotnet test --collect:"XPlat Code Coverage"
 
-# Performance testleri
+# Run performance tests
 dotnet test tests/CleanArchitecture.Performance.Tests
 ```
 
-## 🔐 Güvenlik Özellikleri
+## 🔐 Security Features
 
-- **Authentication**: JWT Bearer token ve API Key desteği
-- **Authorization**: Role-based ve policy-based yetkilendirme
-- **Input Validation**: FluentValidation ile kapsamlı doğrulama
-- **XSS Protection**: Cross-site scripting koruması
+- **Authentication**: JWT Bearer token and API Key support
+- **Authorization**: Role-based and policy-based authorization
+- **Input Validation**: Comprehensive validation with FluentValidation
+- **XSS Protection**: Cross-site scripting protection
 - **SQL Injection Protection**: Parameterized queries
-- **CORS**: Cross-origin resource sharing yapılandırması
+- **CORS**: Cross-origin resource sharing configuration
 - **Rate Limiting**: API rate limiting
-- **Security Headers**: Güvenlik başlıkları
+- **Security Headers**: Security headers
 
 ## 📊 Monitoring & Logging
 
 ### Structured Logging
-- **Serilog** ile yapılandırılmış loglama
-- **Console**, **File**, ve **Seq** sink'leri
+- **Serilog** structured logging
+- **Console**, **File**, and **Seq** sinks
 - **Correlation ID** tracking
 - **Performance logging** middleware
 
@@ -269,49 +269,49 @@ docker-compose -f deployment/docker-compose.production.yml up -d
 
 ### CI/CD Pipeline
 
-GitHub Actions workflow otomatik olarak:
-- ✅ Build ve test işlemlerini çalıştırır
-- 🔍 Security scan yapar
-- 🐳 Docker image oluşturur
-- 🚀 Staging ve Production'a deploy eder
-- 📊 Performance testleri çalıştırır
+GitHub Actions workflow automatically:
+- ✅ Runs build and test processes
+- 🔍 Performs security scans
+- 🐳 Creates Docker images
+- 🚀 Deploys to Staging and Production
+- 📊 Runs performance tests
 
 ## 📚 API Documentation
 
-API dokümantasyonu Swagger/OpenAPI ile otomatik oluşturulur:
-- **Development**: https://localhost:7001/swagger
+API documentation is automatically generated with Swagger/OpenAPI:
+- **Development**: https://localhost:7196/swagger
 - **Production**: https://yourdomain.com/swagger
 
 ### API Versioning
-API versioning desteklenir:
+API versioning is supported:
 - Header: `X-Version: 1.0`
 - Query: `?version=1.0`
 - URL: `/api/v1/users`
 
-## 🤝 Katkıda Bulunma
+## 🤝 Contributing
 
-1. Fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📄 Lisans
+## 📄 License
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 🙏 Teşekkürler
+## 🙏 Acknowledgments
 
 - [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) - Robert C. Martin
 - [.NET Community](https://dotnet.microsoft.com/platform/community)
-- Tüm açık kaynak katkıda bulunanlar
+- All open source contributors
 
-## 📞 İletişim
+## 📞 Contact
 
-- **Proje Sahibi**: [Your Name](mailto:your.email@example.com)
+- **Project Owner**: [Your Name](mailto:your.email@example.com)
 - **GitHub**: [@username](https://github.com/username)
 - **LinkedIn**: [Your LinkedIn](https://linkedin.com/in/username)
 
 ---
 
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+⭐ If you like this project, don't forget to give it a star!
