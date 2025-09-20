@@ -1,0 +1,58 @@
+# Docker Compose override for development environment
+version: '3.8'
+
+services:
+  cleanarch-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: build  # Use build stage for development with hot reload
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=CleanArchDB_Dev;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=admin
+      - RabbitMQ__Password=admin123
+      - RabbitMQ__Port=5672
+      - Logging__LogLevel__Default=Debug
+      - Logging__LogLevel__Microsoft.AspNetCore=Information
+      - Cache__DefaultExpiration=00:05:00
+    volumes:
+      - ../src:/src:ro  # Mount source code for development
+      - app_logs_dev:/app/logs
+    ports:
+      - "8080:8080"
+      - "8081:8081"  # Additional port for debugging
+    command: ["dotnet", "watch", "run", "--project", "/src/CleanArchitecture.WebAPI"]
+
+  sqlserver:
+    environment:
+      - MSSQL_PID=Developer  # Use Developer edition for development
+    volumes:
+      - sqlserver_data_dev:/var/opt/mssql
+
+  redis:
+    command: >
+      redis-server 
+      --appendonly no
+      --save ""
+      --maxmemory 128mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data_dev:/data
+
+  rabbitmq:
+    environment:
+      - RABBITMQ_DEFAULT_USER=dev
+      - RABBITMQ_DEFAULT_PASS=dev123
+      - RABBITMQ_VM_MEMORY_HIGH_WATERMARK=0.6
+    volumes:
+      - rabbitmq_data_dev:/var/lib/rabbitmq
+
+volumes:
+  sqlserver_data_dev:
+  redis_data_dev:
+  rabbitmq_data_dev:
+  app_logs_dev:

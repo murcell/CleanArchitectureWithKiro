@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  sqlserver-test:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: cleanarch-sqlserver-test
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd123
+      - MSSQL_PID=Developer
+    ports:
+      - "1434:1433"
+    tmpfs:
+      - /var/opt/mssql/data
+      - /var/opt/mssql/log
+    networks:
+      - cleanarch-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd123 -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis-test:
+    image: redis:7-alpine
+    container_name: cleanarch-redis-test
+    ports:
+      - "6380:6379"
+    tmpfs:
+      - /data
+    networks:
+      - cleanarch-test-network
+    command: redis-server --appendonly no --save ""
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq-test:
+    image: rabbitmq:3-management-alpine
+    container_name: cleanarch-rabbitmq-test
+    environment:
+      - RABBITMQ_DEFAULT_USER=testuser
+      - RABBITMQ_DEFAULT_PASS=testpass
+      - RABBITMQ_VM_MEMORY_HIGH_WATERMARK=256MiB
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    tmpfs:
+      - /var/lib/rabbitmq
+    networks:
+      - cleanarch-test-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  cleanarch-test-network:
+    driver: bridge
