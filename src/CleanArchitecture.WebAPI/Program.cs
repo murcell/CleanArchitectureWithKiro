@@ -1,5 +1,9 @@
 using CleanArchitecture.Application;
+using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Infrastructure;
+using CleanArchitecture.WebAPI.Configuration;
+using CleanArchitecture.WebAPI.Middleware;
+using CleanArchitecture.WebAPI.Services;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -35,12 +39,45 @@ builder.Services.AddApplication(builder.Configuration);
 // Add Infrastructure layer services (includes EF Core, Redis, RabbitMQ)
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Add rate limiting configuration
+builder.Services.Configure<RateLimitOptions>(builder.Configuration.GetSection("RateLimit"));
+
+// Add HTTP context accessor
+builder.Services.AddHttpContextAccessor();
+
+// Add authorization policies
+builder.Services.AddAuthorizationPolicies();
+
+// Add correlation ID service
+builder.Services.AddScoped<ICorrelationIdService, CorrelationIdService>();
+
+// Add current user service
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
 // Simple configuration without API versioning for now
 
 var app = builder.Build();
 
 // Enable CORS (must be early in pipeline)
 app.UseCors();
+
+// Add global exception handler (should be early)
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+// Add correlation ID tracking
+app.UseMiddleware<CorrelationIdMiddleware>();
+
+// Add security headers
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
+// Add rate limiting
+app.UseMiddleware<RateLimitingMiddleware>();
+
+// Add JWT validation
+app.UseMiddleware<JwtValidationMiddleware>();
+
+// Add performance monitoring
+app.UseMiddleware<PerformanceMonitoringMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

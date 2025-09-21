@@ -12,6 +12,7 @@ public class User : AuditableEntity<int>
     public Email Email { get; private set; } = null!;
     public bool IsActive { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
+    public DateTime? LastLogoutAt { get; private set; }
     public string PasswordHash { get; private set; } = string.Empty;
     public string? RefreshToken { get; private set; }
     public DateTime? RefreshTokenExpiryTime { get; private set; }
@@ -104,6 +105,14 @@ public class User : AuditableEntity<int>
         MarkAsUpdated();
         
         AddDomainEvent(new UserLoggedInEvent(Id, LastLoginAt.Value));
+    }
+    
+    public void RecordLogout()
+    {
+        LastLogoutAt = DateTime.UtcNow;
+        MarkAsUpdated();
+        
+        AddDomainEvent(new UserLoggedOutEvent(Id, LastLogoutAt.Value));
     }
     
     public void SetPasswordHash(string passwordHash)

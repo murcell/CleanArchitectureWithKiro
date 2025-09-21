@@ -142,4 +142,38 @@ public class Product : AuditableEntity<int>
         else
             AddDomainEvent(new ProductBecameUnavailableEvent(Id, Name));
     }
+    
+    public void UpdateStock(int stock)
+    {
+        if (stock < 0)
+            throw new DomainException("Stock cannot be negative.");
+            
+        var oldStock = Stock;
+        Stock = stock;
+        
+        // Update availability based on stock
+        if (stock == 0 && IsAvailable)
+        {
+            IsAvailable = false;
+            AddDomainEvent(new ProductBecameUnavailableEvent(Id, Name));
+        }
+        else if (stock > 0 && !IsAvailable)
+        {
+            IsAvailable = true;
+            AddDomainEvent(new ProductBecameAvailableEvent(Id, Name));
+        }
+        
+        MarkAsUpdated();
+        AddDomainEvent(new ProductStockUpdatedEvent(Id, oldStock, Stock));
+    }
+    
+    public void MarkAsAvailable()
+    {
+        SetAvailability(true);
+    }
+    
+    public void MarkAsUnavailable()
+    {
+        SetAvailability(false);
+    }
 }

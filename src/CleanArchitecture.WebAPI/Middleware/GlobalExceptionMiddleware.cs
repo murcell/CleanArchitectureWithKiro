@@ -105,16 +105,13 @@ public class GlobalExceptionMiddleware
                     error.Contains("SQL"))));
     }
 
-    private static List<string> SanitizeValidationErrors(List<string> errors)
+    private static List<ApiError> SanitizeValidationErrors(List<string> errors)
     {
         // Remove potentially sensitive information from validation error messages
-        return errors.Select(error => 
+        return errors.Select(error => new ApiError
         {
-            // Don't expose the actual malicious input in error messages
-            if (error.Contains("dangerous"))
-                return "Input contains invalid characters";
-            
-            return error;
+            Message = error.Contains("dangerous") ? "Input contains invalid characters" : error,
+            Field = "Unknown"
         }).ToList();
     }
 

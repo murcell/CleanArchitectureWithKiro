@@ -121,8 +121,13 @@ public class AuthController : ControllerBase
         var userId = User.FindFirst("user_id")?.Value;
         _logger.LogInformation("Logout attempt for user: {UserId}", userId);
         
-        // TODO: Implement logout command to invalidate refresh token
-        // For now, just return success - the client should discard the tokens
+        var command = new LogoutCommand(int.Parse(userId));
+        var result = await _mediator.Send(command, cancellationToken);
+        
+        if (!result)
+        {
+            return BadRequest("Logout failed");
+        }
         
         _logger.LogInformation("Logout successful for user: {UserId}", userId);
         return Ok(new { message = "Logged out successfully" });

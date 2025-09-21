@@ -1,3 +1,5 @@
+using CleanArchitecture.Application.Common.Interfaces;
+
 namespace CleanArchitecture.Application.Common.Validators;
 
 /// <summary>
@@ -36,36 +38,51 @@ public interface IValidationContextService
 /// </summary>
 public class ValidationContextService : IValidationContextService
 {
-    // This would typically be injected with actual user context services
-    // For now, providing a basic implementation
+    private readonly ICurrentUserService _currentUserService;
+
+    public ValidationContextService(ICurrentUserService currentUserService)
+    {
+        _currentUserService = currentUserService;
+    }
 
     public int? GetCurrentUserId()
     {
-        // This would typically get the user ID from the current HTTP context or security context
-        return null;
+        return _currentUserService.UserId;
     }
 
     public IEnumerable<string> GetCurrentUserRoles()
     {
-        // This would typically get roles from the current security context
-        return Enumerable.Empty<string>();
+        return _currentUserService.Roles;
     }
 
     public string? GetCurrentTenantId()
     {
         // This would typically get tenant ID from the current context
-        return null;
+        // For now, we can get it from claims if implemented
+        return _currentUserService.GetClaimValue("tenant_id");
     }
 
     public IDictionary<string, object> GetContextProperties()
     {
-        // This would typically provide additional context properties
-        return new Dictionary<string, object>();
+        var properties = new Dictionary<string, object>();
+        
+        if (_currentUserService.UserId.HasValue)
+            properties["UserId"] = _currentUserService.UserId.Value;
+            
+        if (!string.IsNullOrEmpty(_currentUserService.UserName))
+            properties["UserName"] = _currentUserService.UserName;
+            
+        if (!string.IsNullOrEmpty(_currentUserService.Email))
+            properties["Email"] = _currentUserService.Email;
+            
+        properties["IsAuthenticated"] = _currentUserService.IsAuthenticated;
+        properties["Roles"] = _currentUserService.Roles.ToArray();
+        
+        return properties;
     }
 
     public bool HasPermission(string permission)
     {
-        // This would typically check permissions against the current user's roles/permissions
-        return false;
+        return _currentUserService.HasPermission(permission);
     }
 }

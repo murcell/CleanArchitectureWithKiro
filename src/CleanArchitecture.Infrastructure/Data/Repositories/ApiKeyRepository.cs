@@ -54,4 +54,37 @@ public class ApiKeyRepository : Repository<ApiKey>, IApiKeyRepository
             .OrderByDescending(x => x.ExpiresAt)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<(IEnumerable<ApiKey> ApiKeys, int TotalCount)> GetPagedAsync(
+        int page, 
+        int pageSize, 
+        bool? isActive = null, 
+        string? name = null, 
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Set<ApiKey>()
+            .Include(x => x.User)
+            .AsQueryable();
+
+        // Apply filters
+        if (isActive.HasValue)
+        {
+            query = query.Where(x => x.IsActive == isActive.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(x => x.Name.Contains(name));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var apiKeys = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (apiKeys, totalCount);
+    }
 }

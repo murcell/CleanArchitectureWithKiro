@@ -44,4 +44,20 @@ public interface IApiKeyRepository : IRepository<ApiKey>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of expired API keys</returns>
     Task<IEnumerable<ApiKey>> GetExpiredAsync(CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Gets paginated API keys with optional filtering
+    /// </summary>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="isActive">Filter by active status</param>
+    /// <param name="name">Filter by name</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tuple of API keys and total count</returns>
+    Task<(IEnumerable<ApiKey> ApiKeys, int TotalCount)> GetPagedAsync(
+        int page, 
+        int pageSize, 
+        bool? isActive = null, 
+        string? name = null, 
+        CancellationToken cancellationToken = default);
 }

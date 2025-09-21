@@ -97,3 +97,17 @@ public class ProductBecameUnavailableEvent : BaseDomainEvent
         Name = name;
     }
 }
+
+public class ProductStockUpdatedEvent : BaseDomainEvent
+{
+    public int ProductId { get; }
+    public int OldStock { get; }
+    public int NewStock { get; }
+    
+    public ProductStockUpdatedEvent(int productId, int oldStock, int newStock)
+    {
+        ProductId = productId;
+        OldStock = oldStock;
+        NewStock = newStock;
+    }
+}

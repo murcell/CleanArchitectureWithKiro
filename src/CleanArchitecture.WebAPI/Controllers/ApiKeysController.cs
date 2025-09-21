@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using CleanArchitecture.Application.DTOs.Authentication;
 using CleanArchitecture.Application.Features.Authentication.Commands;
+using CleanArchitecture.Application.Features.Authentication.Queries;
 using CleanArchitecture.Infrastructure.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -69,11 +70,12 @@ public class ApiKeysController : ControllerBase
         int id,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Implement GetApiKeyQuery
         _logger.LogInformation("API key retrieval attempt for ID: {ApiKeyId}", id);
         
-        // Placeholder response
-        return NotFound();
+        var query = new GetApiKeyQuery(id);
+        var result = await _mediator.Send(query, cancellationToken);
+        
+        return Ok(result);
     }
 
     /// <summary>
@@ -89,11 +91,12 @@ public class ApiKeysController : ControllerBase
     public async Task<ActionResult<IEnumerable<ApiKeyDto>>> GetApiKeys(
         CancellationToken cancellationToken = default)
     {
-        // TODO: Implement GetApiKeysQuery
         _logger.LogInformation("API keys list retrieval attempt");
         
-        // Placeholder response
-        return Ok(Array.Empty<ApiKeyDto>());
+        var query = new GetApiKeysQuery();
+        var result = await _mediator.Send(query, cancellationToken);
+        
+        return Ok(result);
     }
 
     /// <summary>
@@ -110,10 +113,10 @@ public class ApiKeysController : ControllerBase
         var currentUserId = User.FindFirst("user_id")?.Value;
         _logger.LogInformation("User API keys retrieval attempt for user: {UserId}", currentUserId);
         
-        // TODO: Implement GetUserApiKeysQuery
+        var query = new GetUserApiKeysQuery(int.Parse(currentUserId));
+        var result = await _mediator.Send(query, cancellationToken);
         
-        // Placeholder response
-        return Ok(Array.Empty<ApiKeyDto>());
+        return Ok(result);
     }
 
     /// <summary>
@@ -135,10 +138,16 @@ public class ApiKeysController : ControllerBase
         var currentUserId = User.FindFirst("user_id")?.Value;
         _logger.LogInformation("API key deactivation attempt for ID: {ApiKeyId} by user: {UserId}", id, currentUserId);
         
-        // TODO: Implement DeactivateApiKeyCommand
+        var command = new DeactivateApiKeyCommand(id, int.Parse(currentUserId));
+        var result = await _mediator.Send(command, cancellationToken);
         
-        _logger.LogInformation("API key deactivated successfully: {ApiKeyId}", id);
-        return NoContent();
+        if (result)
+        {
+            _logger.LogInformation("API key deactivated successfully: {ApiKeyId}", id);
+            return NoContent();
+        }
+        
+        return BadRequest("Failed to deactivate API key");
     }
 
     /// <summary>

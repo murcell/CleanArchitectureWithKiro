@@ -71,7 +71,7 @@ public static class AuthenticationConfiguration
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <returns>The service collection for chaining</returns>
-    public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+    public static IServiceCollection AddAuthenticationPolicies(this IServiceCollection services)
     {
         services.AddAuthorization(options =>
         {

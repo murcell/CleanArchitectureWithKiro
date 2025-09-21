@@ -1,6 +1,7 @@
 using CleanArchitecture.Application.DTOs;
 using CleanArchitecture.Application.DTOs.Requests;
 using CleanArchitecture.Application.DTOs.Responses;
+using CleanArchitecture.Application.Features.Products.Commands;
 using CleanArchitecture.Application.Features.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -23,15 +24,21 @@ public class ProductsController : BaseController
     /// <param name="request">Product creation request</param>
     /// <returns>Created product response</returns>
     [HttpPost]
-    public Task<ActionResult<ApiResponse<int>>> CreateProduct([FromBody] CreateProductRequest request)
+    public async Task<ActionResult<ApiResponse<int>>> CreateProduct([FromBody] CreateProductRequest request)
     {
         Logger.LogInformation("Creating product with name: {Name}", request.Name);
         
-        // Note: CreateProductCommand needs to be implemented in the Application layer
-        // For now, we'll return a placeholder response
-        var productId = Random.Shared.Next(1, 1000);
+        var command = new CreateProductCommand(
+            request.Name,
+            request.Description,
+            request.Price,
+            request.Currency,
+            request.Stock,
+            request.UserId);
+            
+        var productId = await Mediator.Send(command);
         
-        return Task.FromResult(CreatedResponse(productId, nameof(GetProduct), new { id = productId }, "Product created successfully"));
+        return CreatedResponse(productId, nameof(GetProduct), new { id = productId }, "Product created successfully");
     }
 
     /// <summary>
@@ -40,27 +47,14 @@ public class ProductsController : BaseController
     /// <param name="id">Product ID</param>
     /// <returns>Product information</returns>
     [HttpGet("{id}")]
-    public Task<ActionResult<ApiResponse<ProductDto>>> GetProduct(int id)
+    public async Task<ActionResult<ApiResponse<ProductDto>>> GetProduct(int id)
     {
         Logger.LogInformation("Getting product with ID: {ProductId}", id);
         
-        // Note: GetProductQuery needs to be implemented in the Application layer
-        // For now, we'll return a placeholder response
-        var product = new ProductDto
-        {
-            Id = id,
-            Name = "Sample Product",
-            Description = "Sample product description",
-            Price = 99.99m,
-            Currency = "USD",
-            Stock = 10,
-            IsAvailable = true,
-            UserId = 1,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
+        var query = new GetProductQuery(id);
+        var product = await Mediator.Send(query);
         
-        return Task.FromResult(SuccessResponse(product, "Product retrieved successfully"));
+        return SuccessResponse(product, "Product retrieved successfully");
     }
 
     /// <summary>
@@ -94,13 +88,21 @@ public class ProductsController : BaseController
     /// <param name="request">Product update request</param>
     /// <returns>Update result</returns>
     [HttpPut("{id}")]
-    public Task<ActionResult<ApiResponse<bool>>> UpdateProduct(int id, [FromBody] UpdateProductRequest request)
+    public async Task<ActionResult<ApiResponse<bool>>> UpdateProduct(int id, [FromBody] UpdateProductRequest request)
     {
         Logger.LogInformation("Updating product {ProductId} with name: {Name}", id, request.Name);
         
-        // Note: UpdateProductCommand needs to be implemented in the Application layer
-        // For now, we'll return a placeholder response
-        return Task.FromResult(SuccessResponse(true, "Product updated successfully"));
+        var command = new UpdateProductCommand(
+            id,
+            request.Name,
+            request.Description,
+            request.Price,
+            request.Currency,
+            request.Stock);
+            
+        var result = await Mediator.Send(command);
+        
+        return SuccessResponse(result, "Product updated successfully");
     }
 
     /// <summary>
@@ -109,13 +111,14 @@ public class ProductsController : BaseController
     /// <param name="id">Product ID</param>
     /// <returns>Delete result</returns>
     [HttpDelete("{id}")]
-    public Task<ActionResult<ApiResponse<bool>>> DeleteProduct(int id)
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteProduct(int id)
     {
         Logger.LogInformation("Deleting product with ID: {ProductId}", id);
         
-        // Note: DeleteProductCommand needs to be implemented in the Application layer
-        // For now, we'll return a placeholder response
-        return Task.FromResult(SuccessResponse(true, "Product deleted successfully"));
+        var command = new DeleteProductCommand(id);
+        var result = await Mediator.Send(command);
+        
+        return SuccessResponse(result, "Product deleted successfully");
     }
 
     /// <summary>
@@ -125,13 +128,14 @@ public class ProductsController : BaseController
     /// <param name="stock">New stock amount</param>
     /// <returns>Update result</returns>
     [HttpPatch("{id}/stock")]
-    public Task<ActionResult<ApiResponse<bool>>> UpdateProductStock(int id, [FromBody] int stock)
+    public async Task<ActionResult<ApiResponse<bool>>> UpdateProductStock(int id, [FromBody] int stock)
     {
         Logger.LogInformation("Updating stock for product {ProductId} to {Stock}", id, stock);
         
-        // Note: UpdateProductStockCommand needs to be implemented in the Application layer
-        // For now, we'll return a placeholder response
-        return Task.FromResult(SuccessResponse(true, "Product stock updated successfully"));
+        var command = new UpdateProductStockCommand(id, stock);
+        var result = await Mediator.Send(command);
+        
+        return SuccessResponse(result, "Product stock updated successfully");
     }
 
     /// <summary>
@@ -140,12 +144,13 @@ public class ProductsController : BaseController
     /// <param name="id">Product ID</param>
     /// <returns>Update result</returns>
     [HttpPatch("{id}/availability")]
-    public Task<ActionResult<ApiResponse<bool>>> ToggleProductAvailability(int id)
+    public async Task<ActionResult<ApiResponse<bool>>> ToggleProductAvailability(int id)
     {
         Logger.LogInformation("Toggling availability for product {ProductId}", id);
         
-        // Note: ToggleProductAvailabilityCommand needs to be implemented in the Application layer
-        // For now, we'll return a placeholder response
-        return Task.FromResult(SuccessResponse(true, "Product availability toggled successfully"));
+        var command = new ToggleProductAvailabilityCommand(id);
+        var result = await Mediator.Send(command);
+        
+        return SuccessResponse(result, "Product availability toggled successfully");
     }
 }

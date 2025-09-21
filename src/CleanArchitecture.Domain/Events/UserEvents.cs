@@ -81,6 +81,18 @@ public class UserLoggedInEvent : BaseDomainEvent
     }
 }
 
+public class UserLoggedOutEvent : BaseDomainEvent
+{
+    public int UserId { get; }
+    public DateTime LogoutTime { get; }
+    
+    public UserLoggedOutEvent(int userId, DateTime logoutTime)
+    {
+        UserId = userId;
+        LogoutTime = logoutTime;
+    }
+}
+
 public class UserRoleChangedEvent : BaseDomainEvent
 {
     public int UserId { get; }

@@ -67,6 +67,7 @@ public static class DependencyInjection
 
         // Register MediatR pipeline behaviors with proper order
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
         
         return services;
     }
@@ -86,6 +87,8 @@ public static class DependencyInjection
         // Register validation services with appropriate lifetimes
         services.AddScoped<IValidationContextService, ValidationContextService>();
         services.AddSingleton<IValidationCacheService, InMemoryValidationCacheService>();
+        
+        // Current user service will be registered in WebAPI layer
 
         return services;
     }

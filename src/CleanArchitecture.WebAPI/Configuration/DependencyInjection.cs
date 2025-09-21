@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using CleanArchitecture.WebAPI.Middleware;
+using CleanArchitecture.WebAPI.Services;
 
 namespace CleanArchitecture.WebAPI.Configuration;
 

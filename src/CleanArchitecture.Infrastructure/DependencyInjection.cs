@@ -75,8 +75,8 @@ public static class DependencyInjection
     /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddDatabaseServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Add Entity Framework with proper configuration
-        services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+        // Add Entity Framework with proper configuration and connection pooling
+        services.AddDbContextPool<ApplicationDbContext>((serviceProvider, options) =>
         {
             var databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
             var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -91,17 +91,23 @@ public static class DependencyInjection
                     errorNumbersToAdd: null);
             });
 
-            // Configure based on environment
-            if (databaseOptions.EnableSensitiveDataLogging)
+            // Performance optimizations
+            options.EnableServiceProviderCaching();
+            options.EnableSensitiveDataLogging(databaseOptions.EnableSensitiveDataLogging);
+            options.EnableDetailedErrors(databaseOptions.EnableDetailedErrors);
+            
+            // Add performance interceptor
+            options.AddInterceptors(serviceProvider.GetRequiredService<Data.Interceptors.PerformanceInterceptor>());
+            
+            // Query optimization
+            options.ConfigureWarnings(warnings =>
             {
-                options.EnableSensitiveDataLogging();
-            }
-
-            if (databaseOptions.EnableDetailedErrors)
-            {
-                options.EnableDetailedErrors();
-            }
-        }, ServiceLifetime.Scoped);
+                warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.RowLimitingOperationWithoutOrderByWarning);
+            });
+        }, poolSize: 128); // Connection pool size
+        
+        // Register performance interceptor
+        services.AddScoped<Data.Interceptors.PerformanceInterceptor>();
 
         return services;
     }
@@ -138,6 +144,7 @@ public static class DependencyInjection
         // Register security services with appropriate lifetimes
         services.AddScoped<IPasswordHasher, Security.PasswordHasher>();
         services.AddScoped<ITokenGenerator, Security.TokenGenerator>();
+        services.AddScoped<ITokenBlacklistService, Security.TokenBlacklistService>();
 
         return services;
     }
@@ -192,19 +199,20 @@ public static class DependencyInjection
     /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddMessageQueueServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // TODO: Fix RabbitMQ version compatibility issues
+        // Configure RabbitMQ options
+        services.Configure<MessageQueueOptions>(configuration.GetSection("RabbitMQ"));
+        
         // Register RabbitMQ services with appropriate lifetimes
-        // services.AddSingleton<IMessageQueueService, RabbitMQService>();
-        // services.AddScoped<IMessagePublisher, MessagePublisher>();
-        // services.AddScoped<IMessageConsumer, MessageConsumer>();
+        services.AddSingleton<IMessageQueueService, RabbitMQService>();
+        services.AddScoped<IMessagePublisher, MessagePublisher>();
+        services.AddScoped<IMessageConsumer, MessageConsumer>();
         
         // Register message handlers with scoped lifetime
-        // services.AddScoped<MessageQueue.Handlers.UserEventHandler>();
-        // services.AddScoped<MessageQueue.Handlers.EmailNotificationHandler>();
+        services.AddScoped<MessageQueue.Handlers.UserEventHandler>();
+        services.AddScoped<MessageQueue.Handlers.EmailNotificationHandler>();
         
         // Register hosted services for automatic startup/shutdown
-        // services.AddHostedService<MessageConsumer>();
-        // services.AddHostedService<MessageQueue.Services.MessageQueueBackgroundService>();
+        // services.AddHostedService<MessageQueue.Services.MessageQueueBackgroundService>(); // Temporarily disabled due to version compatibility
 
         return services;
     }
@@ -218,6 +226,14 @@ public static class DependencyInjection
     {
         // Register application logger with scoped lifetime
         services.AddScoped(typeof(IApplicationLogger<>), typeof(ApplicationLogger<>));
+        
+        // Register monitoring services
+        services.AddSingleton<IMetricsService, Monitoring.MetricsService>();
+        services.AddSingleton<Monitoring.AdvancedMetricsService>();
+        services.AddSingleton<Monitoring.ApplicationInsightsService>();
+        
+        // Register background services
+        services.AddHostedService<Monitoring.MemoryManagementService>();
 
         return services;
     }
@@ -234,6 +250,9 @@ public static class DependencyInjection
 
         // Add application health check
         healthChecksBuilder.AddCheck<ApplicationHealthCheck>("application", tags: new[] { "application" });
+        
+        // Add detailed health check
+        healthChecksBuilder.AddCheck<DetailedHealthCheck>("detailed", tags: new[] { "detailed", "system" });
 
         // Add database health check
         healthChecksBuilder.AddCheck<DatabaseHealthCheck>("database", tags: new[] { "database", "infrastructure" });
